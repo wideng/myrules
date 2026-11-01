@@ -1,0 +1,46 @@
+name: Sync upstream rules
+
+on:
+  schedule:
+    - cron: "17 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sync-upstream
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: true
+
+      - name: Download upstream
+        run: |
+          git clone --depth 1 --branch master \
+            https://github.com/v2rayA/dist-v2ray-rules-dat.git \
+            "$RUNNER_TEMP/upstream"
+
+      - name: Sync files
+        run: |
+          rsync -a --delete \
+            --exclude='/.git/' \
+            --exclude='/.github/' \
+            "$RUNNER_TEMP/upstream/" ./
+
+      - name: Commit changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email \
+            "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if ! git diff --cached --quiet; then
+            git commit -m "Sync upstream rules"
+            git push origin HEAD:main
+          fi
