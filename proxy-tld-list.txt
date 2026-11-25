@@ -28,6 +28,7 @@ gucci
 guge
 hangout
 hbo
+hkt
 hotmail
 hsbc
 ibm
@@ -45,6 +46,7 @@ nike
 office
 oracle
 panasonic
+pccw
 playstation
 porn
 samsung
